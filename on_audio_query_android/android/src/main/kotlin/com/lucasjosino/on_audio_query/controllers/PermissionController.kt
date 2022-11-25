@@ -29,16 +29,22 @@ class PermissionController(
     override fun permissionStatus(context: Context): Boolean = permissions.all {
         // After "leaving" this class, context will be null so, we need this context argument to
         // call the [checkSelfPermission].
-        return ContextCompat.checkSelfPermission(
-            context,
-            it
-        ) == PackageManager.PERMISSION_GRANTED
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.S) {
+            return ContextCompat.checkSelfPermission(
+                context,
+                it
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            return true;
+        }
     }
 
     override fun requestPermission(activity: Activity, result: MethodChannel.Result) {
-        this.activity = activity
-        this.result = result
-        ActivityCompat.requestPermissions(activity, permissions, requestCode)
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.S) {
+            this.activity = activity
+            this.result = result
+            ActivityCompat.requestPermissions(activity, permissions, requestCode)
+        }
     }
 
     // Second requestPermission, this one with the option "Never Ask Again".
